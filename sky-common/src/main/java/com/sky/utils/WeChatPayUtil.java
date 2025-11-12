@@ -1,3 +1,4 @@
+/*
 package com.sky.utils;
 
 import com.alibaba.fastjson.JSON;
@@ -29,9 +30,11 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
+*/
 /**
  * 微信支付工具类
- */
+ *//*
+
 @Component
 public class WeChatPayUtil {
 
@@ -44,11 +47,13 @@ public class WeChatPayUtil {
     @Autowired
     private WeChatProperties weChatProperties;
 
-    /**
+    */
+/**
      * 获取调用微信接口的客户端工具对象
      *
      * @return
-     */
+     *//*
+
     private CloseableHttpClient getClient() {
         PrivateKey merchantPrivateKey = null;
         try {
@@ -72,13 +77,15 @@ public class WeChatPayUtil {
         }
     }
 
-    /**
+    */
+/**
      * 发送post方式请求
      *
      * @param url
      * @param body
      * @return
-     */
+     *//*
+
     private String post(String url, String body) throws Exception {
         CloseableHttpClient httpClient = getClient();
 
@@ -98,12 +105,14 @@ public class WeChatPayUtil {
         }
     }
 
-    /**
+    */
+/**
      * 发送get方式请求
      *
      * @param url
      * @return
-     */
+     *//*
+
     private String get(String url) throws Exception {
         CloseableHttpClient httpClient = getClient();
 
@@ -122,7 +131,8 @@ public class WeChatPayUtil {
         }
     }
 
-    /**
+    */
+/**
      * jsapi下单
      *
      * @param orderNum    商户订单号
@@ -130,7 +140,8 @@ public class WeChatPayUtil {
      * @param description 商品描述
      * @param openid      微信用户的openid
      * @return
-     */
+     *//*
+
     private String jsapi(String orderNum, BigDecimal total, String description, String openid) throws Exception {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("appid", weChatProperties.getAppid());
@@ -154,7 +165,8 @@ public class WeChatPayUtil {
         return post(JSAPI, body);
     }
 
-    /**
+    */
+/**
      * 小程序支付
      *
      * @param orderNum    商户订单号
@@ -162,7 +174,8 @@ public class WeChatPayUtil {
      * @param description 商品描述
      * @param openid      微信用户的openid
      * @return
-     */
+     *//*
+
     public JSONObject pay(String orderNum, BigDecimal total, String description, String openid) throws Exception {
         //统一下单，生成预支付交易单
         String bodyAsString = jsapi(orderNum, total, description, openid);
@@ -205,7 +218,8 @@ public class WeChatPayUtil {
         return jsonObject;
     }
 
-    /**
+    */
+/**
      * 申请退款
      *
      * @param outTradeNo    商户订单号
@@ -213,7 +227,8 @@ public class WeChatPayUtil {
      * @param refund        退款金额
      * @param total         原订单金额
      * @return
-     */
+     *//*
+
     public String refund(String outTradeNo, String outRefundNo, BigDecimal refund, BigDecimal total) throws Exception {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("out_trade_no", outTradeNo);
@@ -233,3 +248,4 @@ public class WeChatPayUtil {
         return post(REFUNDS, body);
     }
 }
+*/

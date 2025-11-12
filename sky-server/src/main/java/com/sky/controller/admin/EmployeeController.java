@@ -22,7 +22,7 @@ import java.util.Map;
  * 员工管理
  */
 @RestController
-@RequestMapping("/admin/employee")
+@RequestMapping("admin/employee")
 @Slf4j
 public class EmployeeController {
 
