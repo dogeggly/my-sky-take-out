@@ -31,7 +31,7 @@ logging:
 sky:
   jwt:
     # 设置jwt签名加密时使用的秘钥
-    admin-secret-key: cqu-take-out
+    admin-secret-key: cqu-take-out-saomamiyaochangdubugou
     # 设置jwt过期时间，12分钟
     admin-ttl: 7200000
     # 设置前端传递过来的令牌名称

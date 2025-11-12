@@ -32,7 +32,7 @@
         <lombok>1.18.40</lombok>
         <pagehelper>1.4.7</pagehelper>
         <aliyun.sdk.oss>3.10.2</aliyun.sdk.oss>
-        <jjwt>0.9.1</jjwt>
+        <jjwt>0.11.5</jjwt>
         <poi>3.16</poi>
         <wechat>0.4.8</wechat>
     </properties>
@@ -71,7 +71,17 @@
 
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt</artifactId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jjwt}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
                 <version>${jjwt}</version>
             </dependency>
 
@@ -81,7 +91,6 @@
                 <artifactId>poi</artifactId>
                 <version>${poi}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
