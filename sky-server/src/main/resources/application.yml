@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: sky-take-out
   profiles:
     active: dev
 #  main:
@@ -17,6 +19,8 @@ mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.sky.entity
   configuration:
+    #开启控制台打印
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     #开启驼峰命名
     map-underscore-to-camel-case: true
 
@@ -32,7 +36,7 @@ sky:
   jwt:
     # 设置jwt签名加密时使用的秘钥
     admin-secret-key: cqu-take-out-saomamiyaochangdubugou
-    # 设置jwt过期时间，12分钟
-    admin-ttl: 7200000
+    # 设置jwt过期时间，2小时*1000
+    admin-ttl: 7200000000
     # 设置前端传递过来的令牌名称
     admin-token-name: token
