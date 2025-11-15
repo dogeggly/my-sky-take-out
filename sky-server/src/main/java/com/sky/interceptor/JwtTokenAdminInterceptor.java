@@ -2,7 +2,7 @@ package com.sky.interceptor;
 
 import com.sky.constant.JwtClaimsConstant;
 import com.sky.properties.JwtProperties;
-import com.sky.current.CurrentHolder;
+import com.sky.context.CurrentContext;
 import com.sky.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,6 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
     /**
      * 校验jwt
-     *
      * @param request
      * @param response
      * @param handler
@@ -36,7 +35,7 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //判断当前拦截到的是Controller的方法还是其他资源
+        //判断当前拦截到的是Controller的动态方法还是其他静态资源
         if (!(handler instanceof HandlerMethod)) {
             //当前拦截到的不是动态方法，直接放行
             return true;
@@ -50,7 +49,7 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             log.info("jwt校验:{}", token);
             Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
             Long empId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
-            CurrentHolder.setCurrent(empId);
+            CurrentContext.setCurrent(empId);
             log.info("当前员工id:{}", empId);
             //3、通过，放行
             return true;
@@ -63,6 +62,6 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
-        CurrentHolder.remove();
+        CurrentContext.remove();
     }
 }

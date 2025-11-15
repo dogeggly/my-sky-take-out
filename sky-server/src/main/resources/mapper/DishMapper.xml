@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.DishMapper">
+
+    <update id="updateDish">
+        update dish
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="image != null and image != ''">image = #{image},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateUser != null">update_user = #{updateUser}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectDishByPage" resultType="com.sky.vo.DishVO">
+        select d.* , c.name category_name from dish d left join category c on d.category_id = c.id
+        <where>
+            <if test="name != null and name != ''">d.name like concat('%',#{name},'%')</if>
+            <if test="categoryId != null">and d.category_id = #{categoryId}</if>
+            <if test="status != null">and d.status = #{status}</if>
+        </where>
+        order by d.update_time desc
+    </select>
+
+    <select id="selectDishByIds" resultType="Dish">
+        select * from dish where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectDishById" resultMap="DishVOMap">
+        select d.*, df.id df_id, df.dish_id df_dish_id, df.name df_name, df.value df_value, c.name c_name
+        from dish d
+                 left join dish_flavor df on d.id = df.dish_id
+                 left join category c on d.category_id = c.id
+        where d.id = #{id}
+    </select>
+
+    <delete id="deleteDish">
+        delete from dish where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <resultMap id="DishVOMap" type="com.sky.vo.DishVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="price" column="price"/>
+        <result property="image" column="image"/>
+        <result property="description" column="description"/>
+        <result property="status" column="status"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="categoryName" column="c_name"/>
+        <collection property="flavors" ofType="DishFlavor">
+            <id property="id" column="df_id"/>
+            <result property="dishId" column="df_dish_id"/>
+            <result property="name" column="df_name"/>
+            <result property="value" column="df_value"/>
+        </collection>
+    </resultMap>
+
+</mapper>

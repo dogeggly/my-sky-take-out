@@ -9,6 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SkyApplication {
     public static void main(String[] args) {
         SpringApplication.run(SkyApplication.class, args);
-        log.info("server started");
+        log.info("项目启动...");
     }
 }

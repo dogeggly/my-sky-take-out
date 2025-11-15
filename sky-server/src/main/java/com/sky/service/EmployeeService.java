@@ -1,30 +1,115 @@
 package com.sky.service;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
+import com.sky.constant.PasswordConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
+import com.sky.exception.AccountLockedException;
+import com.sky.exception.AccountNotFoundException;
+import com.sky.exception.PasswordErrorException;
+import com.sky.mapper.EmployeeMapper;
 import com.sky.result.PageResult;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
-public interface EmployeeService {
+@Service
+public class EmployeeService {
+
+    @Autowired
+    private EmployeeMapper employeeMapper;
 
     /**
      * 员工登录
+     *
      * @param employeeLoginDTO
      * @return
      */
-    Employee login(EmployeeLoginDTO employeeLoginDTO);
+    public Employee login(EmployeeLoginDTO employeeLoginDTO) {
+        String username = employeeLoginDTO.getUsername();
+        String password = employeeLoginDTO.getPassword();
 
-    void createEmp(EmployeeDTO employeeDTO);
+        //1、根据用户名查询数据库中的数据
+        Employee employee = employeeMapper.selectEmpByUsername(username);
 
-    PageResult<Employee> selectEmpByPage(EmployeePageQueryDTO employeePageQueryDTO);
+        //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
+        if (employee == null) {
+            //账号不存在
+            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
+        }
 
-    void updateEmpStatus(Integer status, Long id);
+        //密码比对
+        //进行md5加密，然后再进行比对
+        password = DigestUtils.md5DigestAsHex(password.getBytes());
 
-    Employee selectEmpById(Long id);
+        if (!password.equals(employee.getPassword())) {
+            //密码错误
+            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+        }
 
-    void updateEmp(EmployeeDTO employeeDTO);
+        if (employee.getStatus().equals(StatusConstant.DISABLE)) {
+            //账号被锁定
+            throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
+        }
 
-    void updateEmpPassword(PasswordEditDTO passwordEditDTO);
+        //3、返回实体对象
+        return employee;
+    }
+
+    public void createEmp(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+        employee.setStatus(StatusConstant.ENABLE);
+        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+        employeeMapper.createEmp(employee);
+    }
+
+    public PageResult<Employee> selectEmpByPage(EmployeePageQueryDTO employeePageQueryDTO) {
+        PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
+        Page<Employee> page = employeeMapper.selectEmpByPage(employeePageQueryDTO);
+        return new PageResult<>(page.getTotal(), page.getResult());
+
+    }
+
+    public void updateEmpStatus(Integer status, Long id) {
+        Employee employee = Employee.builder()
+                .id(id)
+                .status(status)
+                .build();
+        employeeMapper.updateEmp(employee);
+    }
+
+    public Employee selectEmpById(Long id) {
+        Employee employee = employeeMapper.selectEmpById(id);
+        employee.setPassword("******");
+        return employee;
+    }
+
+    public void updateEmp(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+        employeeMapper.updateEmp(employee);
+    }
+
+    public void updateEmpPassword(PasswordEditDTO passwordEditDTO) {
+        Long empId = passwordEditDTO.getEmpId();
+        Employee employee = employeeMapper.selectEmpById(empId);
+        String oldPassword = passwordEditDTO.getOldPassword();
+        oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
+        if (!oldPassword.equals(employee.getPassword())) {
+            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+        }
+        employeeMapper.updateEmp(Employee.builder()
+                .id(empId)
+                .password(DigestUtils.md5DigestAsHex(passwordEditDTO.getNewPassword().getBytes()))
+                .build());
+    }
+
 }

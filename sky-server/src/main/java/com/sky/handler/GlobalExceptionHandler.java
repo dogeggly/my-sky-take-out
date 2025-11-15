@@ -19,12 +19,13 @@ import java.sql.SQLIntegrityConstraintViolationException;
 public class GlobalExceptionHandler {
     /**
      * 捕获业务异常
+     *
      * @param ex
      * @return
      */
     @ExceptionHandler
     public Result exceptionHandler(BaseException ex) {
-        log.error("异常信息：{}", ex.getMessage());
+        log.error("自定义异常：{}", ex.getMessage());
         return Result.error(ex.getMessage());
     }
 
@@ -43,7 +44,8 @@ public class GlobalExceptionHandler {
                     return Result.error(message);
                 }
             }
-            return Result.error(MessageConstant.UNKNOWN_ERROR);
+            log.error("数据库未知异常: {}", cause.getMessage());
+            return Result.error(MessageConstant.DATABASE_UNKNOWN_ERROR);
         }
         // 如果底层是 DataTruncation（数据截断，如字符串超长）
         if (cause instanceof DataTruncation truncationEx) {
@@ -56,15 +58,17 @@ public class GlobalExceptionHandler {
                     return Result.error(message);
                 }
             }
-            return Result.error(MessageConstant.UNKNOWN_ERROR);
+            log.error("数据库未知异常: {}", cause.getMessage());
+            return Result.error(MessageConstant.DATABASE_UNKNOWN_ERROR);
         }
         // 其他未识别的完整性异常
-        return Result.error(MessageConstant.DATABASE_ERROR);
+        log.error("数据库未知异常: {}", cause.getMessage());
+        return Result.error(MessageConstant.DATABASE_UNKNOWN_ERROR);
     }
 
     @ExceptionHandler
     public Result exceptionHandler(Exception ex) {
-        log.error("异常信息：{}", ex.getMessage());
-        return Result.error("服务器异常");
+        log.error("未知异常：{}", ex.getMessage());
+        return Result.error(MessageConstant.UNKNOWN_ERROR);
     }
 }
