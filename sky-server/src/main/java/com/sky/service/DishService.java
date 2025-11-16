@@ -36,7 +36,6 @@ public class DishService {
     public void createDish(DishDTO dishDTO) {
         Dish dish = new Dish();
         BeanUtils.copyProperties(dishDTO, dish);
-        //TODO前端可以不传菜品的状态
         dish.setStatus(StatusConstant.DISABLE);
         dishMapper.createDish(dish);
         List<DishFlavor> flavors = dishDTO.getFlavors();

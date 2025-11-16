@@ -30,4 +30,5 @@ public interface CategoryMapper {
 
     @Select("select * from category where type = #{type}")
     List<Category> selectCategoryByType(Integer type);
+
 }

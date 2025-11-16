@@ -10,9 +10,8 @@ import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
-import com.sky.exception.AccountLockedException;
-import com.sky.exception.AccountNotFoundException;
-import com.sky.exception.PasswordErrorException;
+import com.sky.exception.AccountException;
+import com.sky.exception.PasswordException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.result.PageResult;
 import org.springframework.beans.BeanUtils;
@@ -42,7 +41,7 @@ public class EmployeeService {
         //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
         if (employee == null) {
             //账号不存在
-            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
+            throw new AccountException(MessageConstant.ACCOUNT_NOT_FOUND);
         }
 
         //密码比对
@@ -51,12 +50,12 @@ public class EmployeeService {
 
         if (!password.equals(employee.getPassword())) {
             //密码错误
-            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+            throw new PasswordException(MessageConstant.PASSWORD_ERROR);
         }
 
         if (employee.getStatus().equals(StatusConstant.DISABLE)) {
             //账号被锁定
-            throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
+            throw new AccountException(MessageConstant.ACCOUNT_LOCKED);
         }
 
         //3、返回实体对象
@@ -104,7 +103,7 @@ public class EmployeeService {
         String oldPassword = passwordEditDTO.getOldPassword();
         oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
         if (!oldPassword.equals(employee.getPassword())) {
-            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+            throw new PasswordException(MessageConstant.PASSWORD_EDIT_FAILED);
         }
         employeeMapper.updateEmp(Employee.builder()
                 .id(empId)
