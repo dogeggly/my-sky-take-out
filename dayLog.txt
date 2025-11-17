@@ -23,6 +23,9 @@ day6:
     优化了常量类和异常类
     补充了分类的删除接口，并处理好删除和状态相关的多表逻辑外键约束关系
 
+day7:
+    学习redis
+
 待处理的依赖：
     redis,websocket,poi,weChat
 TODO:
