@@ -4,6 +4,7 @@ import com.sky.annotation.AutoFill;
 import com.sky.constant.AutoFillConstant;
 import com.sky.context.CurrentContext;
 import com.sky.enumeration.OperationType;
+import com.sky.exception.BaseException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -12,6 +13,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 
@@ -25,9 +27,9 @@ public class AutoFillAspect {
     }
 
     @Before("autoFillPointcut()")
-    public void autoFill(JoinPoint joinPoint) throws Exception {
+    public void autoFill(JoinPoint joinPoint) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-        log.info("开始进行数据填充");
+        log.info("开始进行数据填充...");
 
         //获取签名，并向下转型为方法签名
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
@@ -41,7 +43,7 @@ public class AutoFillAspect {
         //获取参数
         Object[] args = joinPoint.getArgs();
         if (args == null || args.length == 0) {
-            throw new Exception();
+            throw new BaseException("未获取到参数，无法进行自动填充");
         }
         Object entity = args[0];
 
@@ -62,7 +64,7 @@ public class AutoFillAspect {
             setUpdateTime.invoke(entity, LocalDateTime.now());
             setUpdateUser.invoke(entity, CurrentContext.getCurrent());
         } else {
-            throw new Exception();
+            throw new BaseException("未知的操作类型，无法进行自动填充");
         }
     }
 

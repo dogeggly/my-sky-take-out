@@ -26,7 +26,10 @@ day6:
 day7:
     学习redis
 
+day8:
+    完成营业状态相关接口
+    改进jwt的工具类
+    完成阿里云oss和图片上传功能
+
 待处理的依赖：
     redis,websocket,poi,weChat
-TODO:
-    图片上传

@@ -31,7 +31,10 @@
         <mybatis>3.0.5</mybatis>
         <lombok>1.18.40</lombok>
         <pagehelper>1.4.7</pagehelper>
-        <aliyun.sdk.oss>3.10.2</aliyun.sdk.oss>
+        <aliyun.sdk.oss>3.17.4</aliyun.sdk.oss>
+        <jaxb-api>2.3.1</jaxb-api>
+        <activation>1.1.1</activation>
+        <jaxb-runtime>2.3.3</jaxb-runtime>
         <jjwt>0.11.5</jjwt>
         <poi>3.16</poi>
         <wechat>0.4.8</wechat>
@@ -67,6 +70,21 @@
                 <groupId>com.aliyun.oss</groupId>
                 <artifactId>aliyun-sdk-oss</artifactId>
                 <version>${aliyun.sdk.oss}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb-api}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>${activation}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb-runtime}</version>
             </dependency>
 
             <dependency>

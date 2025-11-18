@@ -9,4 +9,8 @@ sky:
   redis:
     host: localhost
     port: 6379
-    database: 0
+    database: 1
+  aliyunoss:
+    endpoint: https://oss-cn-beijing.aliyuncs.com
+    bucketName: dogeggly
+    region: cn-beijing
