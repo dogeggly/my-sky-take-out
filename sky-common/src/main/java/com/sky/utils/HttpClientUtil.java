@@ -1,7 +1,9 @@
-/*
 package com.sky.utils;
 
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sky.properties.WeChatProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -12,44 +14,62 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-*/
-/**
- * Http工具类
- *//*
+@Slf4j
+@Component
+public class HttpClientUtil implements DisposableBean {
 
-public class HttpClientUtil {
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private WeChatProperties weChatProperties;
 
-    static final  int TIMEOUT_MSEC = 5 * 1000;
+    private static final String WX_LOGIN_URL = "https://api.weixin.qq.com/sns/jscode2session";
+    private static final String GRANT_TYPE = "authorization_code";
+    private static final int TIMEOUT_MSEC = 5 * 1000;
+    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom()
+            .setConnectionRequestTimeout(TIMEOUT_MSEC)// 从连接池获取连接超时
+            .setConnectTimeout(TIMEOUT_MSEC)// 建立tcp连接超时
+            .setSocketTimeout(TIMEOUT_MSEC)// 数据读取超时
+            .build();
 
-    */
-/**
-     * 发送GET方式请求
-     * @param url
-     * @param paramMap
-     * @return
-     *//*
+    // 创建HttpClient连接池
+    private final PoolingHttpClientConnectionManager clientConnectionManager;
+    // 创建HttpClient对象
+    private final CloseableHttpClient client;
 
-    public static String doGet(String url,Map<String,String> paramMap){
-        // 创建Httpclient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+    public HttpClientUtil() {
+        clientConnectionManager = new PoolingHttpClientConnectionManager();
+        client = HttpClients.custom()
+                .setConnectionManager(clientConnectionManager)
+                .setDefaultRequestConfig(REQUEST_CONFIG)
+                .build();
+        log.info("HttpClient对象和连接池已创建...");
+    }
+
+    public String doGet(String url, Map<String, String> paramMap) {
 
         String result = "";
         CloseableHttpResponse response = null;
 
-        try{
+        try {
             URIBuilder builder = new URIBuilder(url);
-            if(paramMap != null){
-                for (String key : paramMap.keySet()) {
-                    builder.addParameter(key,paramMap.get(key));
+            if (paramMap != null) {
+                for (Map.Entry<String, String> param : paramMap.entrySet()) {
+                    builder.addParameter(param.getKey(), param.getValue());
                 }
             }
             URI uri = builder.build();
@@ -57,102 +77,90 @@ public class HttpClientUtil {
             //创建GET请求
             HttpGet httpGet = new HttpGet(uri);
 
-            //发送请求
-            response = httpClient.execute(httpGet);
+            //执行请求
+            response = client.execute(httpGet);
 
             //判断响应状态
-            if(response.getStatusLine().getStatusCode() == 200){
-                result = EntityUtils.toString(response.getEntity(),"UTF-8");
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == 200) {
+                result = EntityUtils.toString(response.getEntity(), "UTF-8");
+            } else {
+                result = "请求失败：" + statusCode;
             }
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
+        } catch (Exception e) {
+            log.error("请求失败：{}", e.getMessage());
+        } finally {
             try {
-                response.close();
-                httpClient.close();
+                if (response != null) {
+                    response.close();
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("请求失败：{}", e.getMessage());
             }
         }
 
         return result;
     }
 
-    */
-/**
-     * 发送POST方式请求
-     * @param url
-     * @param paramMap
-     * @return
-     * @throws IOException
-     *//*
+    public String doPost(String url, Map<String, String> paramMap) {
 
-    public static String doPost(String url, Map<String, String> paramMap) throws IOException {
-        // 创建Httpclient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        String result = "";
         CloseableHttpResponse response = null;
-        String resultString = "";
 
         try {
-            // 创建Http Post请求
+            //创建Post请求
             HttpPost httpPost = new HttpPost(url);
 
-            // 创建参数列表
             if (paramMap != null) {
                 List<NameValuePair> paramList = new ArrayList();
                 for (Map.Entry<String, String> param : paramMap.entrySet()) {
                     paramList.add(new BasicNameValuePair(param.getKey(), param.getValue()));
                 }
-                // 模拟表单
+                //模拟表单
                 UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList);
+                //设置请求编码
+                entity.setContentEncoding("utf-8");
+                //设置数据类型
+                entity.setContentType("application/x-www-form-urlencoded");
                 httpPost.setEntity(entity);
             }
 
-            httpPost.setConfig(builderRequestConfig());
+            //执行请求
+            response = client.execute(httpPost);
 
-            // 执行http请求
-            response = httpClient.execute(httpPost);
-
-            resultString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            //判断响应状态
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == 200) {
+                result = EntityUtils.toString(response.getEntity(), "UTF-8");
+            } else {
+                result = "请求失败：" + statusCode;
+            }
         } catch (Exception e) {
-            throw e;
+            log.error("请求失败：{}", e.getMessage());
         } finally {
             try {
-                response.close();
+                if (response != null) {
+                    response.close();
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("请求失败：{}", e.getMessage());
             }
         }
 
-        return resultString;
+        return result;
     }
 
-    */
-/**
-     * 发送POST方式请求
-     * @param url
-     * @param paramMap
-     * @return
-     * @throws IOException
-     *//*
+    public String doPost4Json(String url, Map<String, String> paramMap) {
 
-    public static String doPost4Json(String url, Map<String, String> paramMap) throws IOException {
-        // 创建Httpclient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        String result = "";
         CloseableHttpResponse response = null;
-        String resultString = "";
 
         try {
-            // 创建Http Post请求
+            //创建Post请求
             HttpPost httpPost = new HttpPost(url);
 
             if (paramMap != null) {
-                //构造json格式数据
-                JSONObject jsonObject = new JSONObject();
-                for (Map.Entry<String, String> param : paramMap.entrySet()) {
-                    jsonObject.put(param.getKey(),param.getValue());
-                }
-                StringEntity entity = new StringEntity(jsonObject.toString(),"utf-8");
+                StringEntity entity = new StringEntity(objectMapper.writeValueAsString(paramMap), "utf-8");
                 //设置请求编码
                 entity.setContentEncoding("utf-8");
                 //设置数据类型
@@ -160,30 +168,55 @@ public class HttpClientUtil {
                 httpPost.setEntity(entity);
             }
 
-            httpPost.setConfig(builderRequestConfig());
+            //执行请求
+            response = client.execute(httpPost);
 
-            // 执行http请求
-            response = httpClient.execute(httpPost);
-
-            resultString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            //判断响应状态
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == 200) {
+                result = EntityUtils.toString(response.getEntity(), "UTF-8");
+            } else {
+                result = "请求失败：" + statusCode;
+            }
         } catch (Exception e) {
-            throw e;
+            log.error("请求失败：{}", e.getMessage());
         } finally {
             try {
-                response.close();
+                if (response != null) {
+                    response.close();
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("请求失败：{}", e.getMessage());
             }
         }
 
-        return resultString;
-    }
-    private static RequestConfig builderRequestConfig() {
-        return RequestConfig.custom()
-                .setConnectTimeout(TIMEOUT_MSEC)
-                .setConnectionRequestTimeout(TIMEOUT_MSEC)
-                .setSocketTimeout(TIMEOUT_MSEC).build();
+        return result;
     }
 
+    public String getOpenid(String code) {
+        Map<String, String> paramMap = new HashMap<>();
+        paramMap.put("appid", weChatProperties.getAppid());
+        paramMap.put("secret", weChatProperties.getSecret());
+        paramMap.put("js_code", code);
+        paramMap.put("grant_type", GRANT_TYPE);
+
+        String resultJSON = doGet(WX_LOGIN_URL, paramMap);
+        Map<String, String> resultMap = null;
+        try {
+            resultMap = objectMapper.readValue(resultJSON, Map.class);
+        } catch (JsonProcessingException e) {
+            log.error("解析微信返回数据失败：{}", e.getMessage());
+        }
+        if (resultMap == null) {
+            return null;
+        }
+        return resultMap.get("openid");
+    }
+
+    @Override
+    public void destroy() throws IOException {
+        client.close();
+        clientConnectionManager.close();
+        log.info("HttpClient对象和连接池已关闭...");
+    }
 }
-*/

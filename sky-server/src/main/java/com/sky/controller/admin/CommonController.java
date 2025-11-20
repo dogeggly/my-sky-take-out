@@ -1,7 +1,8 @@
 package com.sky.controller.admin;
 
 import com.aliyuncs.exceptions.ClientException;
-import com.sky.exception.BaseException;
+import com.sky.constant.MessageConstant;
+import com.sky.exception.UploadException;
 import com.sky.result.Result;
 import com.sky.utils.AliOssUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class CommonController {
     public Result<String> upload(MultipartFile file) throws IOException, ClientException {
         log.info("文件上传：{}", file);
         if (file == null || file.getOriginalFilename() == null) {
-            throw new BaseException("上传文件错误");
+            throw new UploadException(MessageConstant.UPLOAD_FAILED);
         }
         String url = aliOssUtil.upload(file.getBytes(), file.getOriginalFilename());
         return Result.success(url);

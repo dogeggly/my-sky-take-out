@@ -45,7 +45,13 @@ sky:
     admin-ttl: 7200000000
     # 设置前端传递过来的令牌名称
     admin-token-name: token
+    user-secret-key: cqu-take-out-user-saomamiyaochangdubugou
+    user-ttl: 7200000000
+    user-token-name: authentication
   aliyunoss:
     endpoint: ${sky.aliyunoss.endpoint}
     bucketName: ${sky.aliyunoss.bucketName}
     region: ${sky.aliyunoss.region}
+  wechat:
+    appid: ${appid}
+    secret: ${secret}

@@ -14,3 +14,6 @@ sky:
     endpoint: https://oss-cn-beijing.aliyuncs.com
     bucketName: dogeggly
     region: cn-beijing
+  wechat:
+    appid: wx4f1d6ff8c2fc37f3
+    secret: 3121a7efd1929052e440c656398a4b81

@@ -31,5 +31,11 @@ day8:
     改进jwt的工具类
     完成阿里云oss和图片上传功能
 
+休息了一天...
+
+day9:
+    学习用java的httpClient发送http请求，并改进了其工具类
+    完成了微信登录相关接口，包括拦截器
+
 待处理的依赖：
     redis,websocket,poi,weChat
