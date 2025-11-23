@@ -12,7 +12,7 @@ day3:
 
 day4:
     学习了反射，注解，枚举，完成自动填充的切面类
-    再次优化了异常处理，自动填充相关异常直接统一抛出Exception
+    再次优化了异常处理，自动填充相关异常直接统一抛出BaseException
     删掉了service层的接口
 
 day5:
@@ -41,6 +41,11 @@ day10:
     完成缓存菜品和套餐功能
     学习了清除缓存与数据库保持一致性，学习springCache
     解决了java对象序列化到redis中乱码不易读的问题
+
+day11:
+    完成购物车相关接口
+    补充套餐中菜品的缓存功能，并将缓存的@Cacheable整合到service层当中，以免将整个Result封装到缓存导致反序列化错误
+    将登录生成令牌和验证功能整合到service层当中
 
 待处理的依赖：
     redis,websocket,poi,weChat

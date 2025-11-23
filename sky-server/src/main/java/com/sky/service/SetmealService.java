@@ -16,6 +16,7 @@ import com.sky.result.PageResult;
 import com.sky.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,6 +103,7 @@ public class SetmealService {
         setmealDishMapper.deleteSetmealDishes(ids);
     }
 
+    @Cacheable(value = "setmealCache", key = "#categoryId")
     public List<Setmeal> selectSetmealByCategoryId(Long categoryId) {
         Integer status = StatusConstant.ENABLE;
         return setmealDishMapper.selectSetmealByCategoryId(categoryId, status);

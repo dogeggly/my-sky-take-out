@@ -17,6 +17,8 @@ import com.sky.vo.DishItemVO;
 import com.sky.vo.DishVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,8 @@ public class DishService {
     private DishFlavorMapper dishFlavorMapper;
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Transactional
     public void createDish(DishDTO dishDTO) {
@@ -106,9 +110,17 @@ public class DishService {
     }
 
     public List<DishVO> selectDishesAndFlavorsByCategoryId(Long categoryId) {
-        return dishMapper.selectDishesAndFlavorsByCategoryId(categoryId);
+        String key = "dish_" + categoryId;
+        List<DishVO> dishes = (List<DishVO>) redisTemplate.opsForValue().get(key);
+        if (dishes != null) {
+            return dishes;
+        }
+        dishes = dishMapper.selectDishesAndFlavorsByCategoryId(categoryId);
+        redisTemplate.opsForValue().set(key, dishes);
+        return dishes;
     }
 
+    @Cacheable(cacheNames = "setmealDishCache", key = "#setmealId")
     public List<DishItemVO> selectDishBySetmealId(Long setmealId) {
         return dishMapper.selectDishBySetmealId(setmealId);
     }
