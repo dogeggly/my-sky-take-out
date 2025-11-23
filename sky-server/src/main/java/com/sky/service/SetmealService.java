@@ -90,7 +90,7 @@ public class SetmealService {
 
     @Transactional
     public void deleteSetmealByIds(List<Long> ids) {
-        List<Setmeal> setmeals = setmealMapper.selectDishByIds(ids);
+        List<Setmeal> setmeals = setmealMapper.selectSetmealsByIds(ids);
         if (setmeals != null && !setmeals.isEmpty()) {
             for (Setmeal setmeal : setmeals) {
                 if (setmeal.getStatus().equals(StatusConstant.ENABLE)) {
@@ -100,5 +100,10 @@ public class SetmealService {
         }
         setmealMapper.deleteSetmeals(ids);
         setmealDishMapper.deleteSetmealDishes(ids);
+    }
+
+    public List<Setmeal> selectSetmealByCategoryId(Long categoryId) {
+        Integer status = StatusConstant.ENABLE;
+        return setmealDishMapper.selectSetmealByCategoryId(categoryId, status);
     }
 }

@@ -28,7 +28,7 @@ public class UserController {
     @Autowired
     private JwtProperties jwtProperties;
 
-    @PostMapping("login")
+    @PostMapping("/login")
     public Result<UserLoginVO> login(@RequestBody UserLoginDTO userLoginDTO) {
         log.info("用户登录：{}", userLoginDTO);
         User user = userService.login(userLoginDTO);
@@ -41,6 +41,12 @@ public class UserController {
                 .token(token)
                 .build();
         return Result.success(userLoginVO);
+    }
+
+    @PostMapping("/logout")
+    public Result logout() {
+        log.info("用户退出登录");
+        return Result.success();
     }
 
 }

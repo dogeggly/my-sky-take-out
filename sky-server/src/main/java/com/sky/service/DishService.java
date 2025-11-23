@@ -13,6 +13,7 @@ import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.result.PageResult;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.DishVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,4 +104,13 @@ public class DishService {
                 .build();
         dishMapper.updateDish(dish);
     }
+
+    public List<DishVO> selectDishesAndFlavorsByCategoryId(Long categoryId) {
+        return dishMapper.selectDishesAndFlavorsByCategoryId(categoryId);
+    }
+
+    public List<DishItemVO> selectDishBySetmealId(Long setmealId) {
+        return dishMapper.selectDishBySetmealId(setmealId);
+    }
+
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@RestController("adminCategoryController")
 @RequestMapping("/admin/category")
 @Slf4j
 public class CategoryController {
@@ -49,14 +49,14 @@ public class CategoryController {
     }
 
     @GetMapping("/page")
-    public Result<PageResult<Category>> page(CategoryPageQueryDTO categoryPageQueryDTO) {
+    public Result<PageResult<Category>> selectCategoryByPage(CategoryPageQueryDTO categoryPageQueryDTO) {
         log.info("分页查询分类：{}", categoryPageQueryDTO);
-        PageResult<Category> pageResult = categoryService.selectByPage(categoryPageQueryDTO);
+        PageResult<Category> pageResult = categoryService.selectCategoryByPage(categoryPageQueryDTO);
         return Result.success(pageResult);
     }
 
     @GetMapping("/list")
-    public Result<List<Category>> list(Integer type) {
+    public Result<List<Category>> selectCategoryByType(Integer type) {
         log.info("根据类型查询分类：{}", type);
         List<Category> list = categoryService.selectCategoryByType(type);
         return Result.success(list);

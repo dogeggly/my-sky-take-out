@@ -37,5 +37,10 @@ day9:
     学习用java的httpClient发送http请求，并改进了其工具类
     完成了微信登录相关接口，包括拦截器
 
+day10:
+    完成缓存菜品和套餐功能
+    学习了清除缓存与数据库保持一致性，学习springCache
+    解决了java对象序列化到redis中乱码不易读的问题
+
 待处理的依赖：
     redis,websocket,poi,weChat

@@ -43,6 +43,14 @@
         where d.id = #{id}
     </select>
 
+    <select id="selectDishesAndFlavorsByCategoryId" resultMap="DishVOMap">
+        select d.*, df.id df_id, df.dish_id df_dish_id, df.name df_name, df.value df_value, c.name c_name
+        from dish d
+                 left join dish_flavor df on d.id = df.dish_id
+                 left join category c on d.category_id = c.id
+        where d.category_id = #{categoryId}
+    </select>
+
     <delete id="deleteDish">
         delete from dish where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">

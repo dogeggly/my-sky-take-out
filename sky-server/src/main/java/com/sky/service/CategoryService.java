@@ -63,9 +63,9 @@ public class CategoryService {
         categoryMapper.updateCategory(category);
     }
 
-    public PageResult<Category> selectByPage(CategoryPageQueryDTO categoryPageQueryDTO) {
+    public PageResult<Category> selectCategoryByPage(CategoryPageQueryDTO categoryPageQueryDTO) {
         PageHelper.startPage(categoryPageQueryDTO.getPage(), categoryPageQueryDTO.getPageSize());
-        Page<Category> page = categoryMapper.selectByPage(categoryPageQueryDTO);
+        Page<Category> page = categoryMapper.selectCategoryByPage(categoryPageQueryDTO);
         return new PageResult<>(page.getTotal(), page.getResult());
     }
 

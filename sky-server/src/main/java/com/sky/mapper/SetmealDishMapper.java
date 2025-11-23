@@ -1,5 +1,6 @@
 package com.sky.mapper;
 
+import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -17,4 +18,7 @@ public interface SetmealDishMapper {
 
     @Select("select d.status from setmeal_dish sd left join dish d on sd.dish_id = d.id where sd.setmeal_id = #{id}")
     List<Integer> selectDishStatusesBySetmealId(Long id);
+
+    @Select("select * from setmeal where category_id = #{categoryId} and status = #{status}")
+    List<Setmeal> selectSetmealByCategoryId(Long categoryId, Integer status);
 }

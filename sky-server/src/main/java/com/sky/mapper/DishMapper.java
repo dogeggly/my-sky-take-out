@@ -5,6 +5,7 @@ import com.sky.annotation.AutoFill;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -36,4 +37,10 @@ public interface DishMapper {
     @Select("select * from dish where category_id = #{categoryId}")
     List<Dish> selectDishesByCategoryId(Long categoryId);
 
+    List<DishVO> selectDishesAndFlavorsByCategoryId(Long categoryId);
+
+    @Select("select d.name, d.image, d.description, sd.copies from dish d " +
+            "left join setmeal_dish sd on d.id = sd.dish_id " +
+            "where sd.setmeal_id = #{setmealId}")
+    List<DishItemVO> selectDishBySetmealId(Long setmealId);
 }
