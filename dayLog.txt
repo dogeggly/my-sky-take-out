@@ -47,5 +47,8 @@ day11:
     补充套餐中菜品的缓存功能，并将缓存的@Cacheable整合到service层当中，以免将整个Result封装到缓存导致反序列化错误
     将登录生成令牌和验证功能整合到service层当中
 
+day12:
+    完成地址和订单相关接口
+
 待处理的依赖：
     redis,websocket,poi,weChat
