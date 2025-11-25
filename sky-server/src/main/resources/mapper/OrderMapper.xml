@@ -2,4 +2,64 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.OrderMapper">
+    <update id="updateOrder">
+        update orders
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="number != null and number != ''">number = #{number},</if>
+            <if test="checkoutTime != null">checkout_time = #{checkoutTime},</if>
+            <if test="payMethod != null">pay_method = #{payMethod},</if>
+            <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="cancelReason != null and cancelReason != ''">cancel_reason = #{cancelReason},</if>
+            <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
+        </set>
+        where number = #{number}
+    </update>
+    <select id="selectOrders" resultType="com.sky.vo.OrderVO">
+        select * from orders
+        <where>
+            <if test="userId != null">and user_id = #{userId}</if>
+            <if test="status != null">and status = #{status}</if>
+            <if test="id != null">and id = #{id}</if>
+        </where>
+        order by order_time desc
+    </select>
+
+    <resultMap id="OrderVOMap" type="com.sky.vo.OrderVO">
+        <id property="id" column="id"/>
+        <result property="number" column="number"/>
+        <result property="status" column="status"/>
+        <result property="userId" column="user_id"/>
+        <result property="addressBookId" column="address_book_id"/>
+        <result property="orderTime" column="order_time"/>
+        <result property="checkoutTime" column="checkout_time"/>
+        <result property="payMethod" column="pay_method"/>
+        <result property="payStatus" column="pay_status"/>
+        <result property="amount" column="amount"/>
+        <result property="remark" column="remark"/>
+        <result property="userName" column="user_name"/>
+        <result property="phone" column="phone"/>
+        <result property="address" column="address"/>
+        <result property="consignee" column="consignee"/>
+        <result property="cancelReason" column="cancel_reason"/>
+        <result property="rejectionReason" column="rejection_reason"/>
+        <result property="cancelTime" column="cancel_time"/>
+        <result property="estimatedDeliveryTime" column="estimated_delivery_time"/>
+        <result property="deliveryStatus" column="delivery_status"/>
+        <result property="deliveryTime" column="delivery_time"/>
+        <result property="packAmount" column="pack_amount"/>
+        <result property="tablewareNumber" column="tableware_number"/>
+        <result property="tablewareStatus" column="tableware_status"/>
+        <collection property="orderDetailList" ofType="OrderDetail">
+            <id property="id" column="detailId"/>
+            <result property="name" column="detailName"/>
+            <result property="orderId" column="detailOrderId"/>
+            <result property="dishId" column="detailDishId"/>
+            <result property="setmealId" column="detailSetmealId"/>
+            <result property="dishFlavor" column="detailDishFlavor"/>
+            <result property="number" column="detailNumber"/>
+            <result property="amount" column="detailAmount"/>
+            <result property="image" column="detailImage"/>
+        </collection>
+    </resultMap>
 </mapper>

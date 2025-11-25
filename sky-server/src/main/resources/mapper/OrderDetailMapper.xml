@@ -8,4 +8,18 @@
             (#{od.name}, #{od.image}, #{od.orderId}, #{od.dishId}, #{od.setmealId}, #{od.dishFlavor}, #{od.number}, #{od.amount})
         </foreach>
     </insert>
+    <select id="selectOrderDetails" resultType="com.sky.entity.OrderDetail">
+        select * from order_detail
+        <where>
+            <if test="orderIdList != null and orderIdList.size() > 0">
+                order_id in
+                <foreach collection="orderIdList" item="orderId" separator="," open="(" close=")">
+                    #{orderId}
+                </foreach>
+            </if>
+            <if test="orderIdList == null or orderIdList.size() == 0">
+                1 = 2  <!-- 永假条件，返回空结果集 -->
+            </if>
+        </where>
+    </select>
 </mapper>

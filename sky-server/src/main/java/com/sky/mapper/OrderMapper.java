@@ -1,9 +1,9 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
 import com.sky.entity.Orders;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
+import com.sky.vo.OrderVO;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface OrderMapper {
@@ -12,4 +12,11 @@ public interface OrderMapper {
             "values " +
             "(#{number}, #{userId}, #{addressBookId}, #{orderTime}, #{checkoutTime}, #{amount}, #{remark}, #{phone}, #{address}, #{consignee}, #{cancelReason}, #{rejectionReason}, #{cancelTime}, #{estimatedDeliveryTime}, #{deliveryTime}, #{packAmount}, #{tablewareNumber})")
     void addOrder(Orders orders);
+
+    void updateOrder(Orders orders);
+
+    @Select("select * from orders where id = #{id}")
+    Orders selectById(Long id);
+
+    Page<OrderVO> selectOrders(Orders orders);
 }

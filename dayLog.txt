@@ -1,7 +1,7 @@
 day1,day2:
     认识@ConfigurationProperties，并优化了配置
     将springboot2移植至springboot3，升级了sql驱动和mybatis，lombok，jjwt等依赖版本，删除了冗余依赖
-    暂时放弃微信支付相关功能……
+    放弃微信支付相关功能……
     放弃用swagger和knife4j……
     token直接放在请求头而不是请求头的cookie中……
     优化全局异常处理器，对数据库各种异常分类，并处理好与Exception总体匹配的关系
@@ -48,7 +48,11 @@ day11:
     将登录生成令牌和验证功能整合到service层当中
 
 day12:
-    完成地址和订单相关接口
+    完成地址相关接口和下单
 
-待处理的依赖：
-    redis,websocket,poi,weChat
+day13:
+    完成订单剩余的接口，跳过微信支付和退款
+
+待处理：
+    redis,websocket,poi
+    商家接单设置已接单、派送中，拒单设置拒单理由、退款、已取消，送达设置送达时间和已送达

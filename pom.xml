@@ -36,8 +36,8 @@
         <activation>1.1.1</activation>
         <jaxb-runtime>2.3.3</jaxb-runtime>
         <jjwt>0.11.5</jjwt>
+        <hutool>5.8.38</hutool>
         <poi>3.16</poi>
-        <wechat>0.4.8</wechat>
     </properties>
 
     <dependencyManagement>
@@ -103,6 +103,12 @@
                 <version>${jjwt}</version>
             </dependency>
 
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool}</version>
+            </dependency>
+
             <!-- poi，处理 Microsoft Office 文档 -->
             <dependency>
                 <groupId>org.apache.poi</groupId>
@@ -114,21 +120,6 @@
                 <artifactId>poi-ooxml</artifactId>
                 <version>${poi}</version>
             </dependency>
-
-            <!--微信支付-->
-            <dependency>
-                <groupId>com.github.wechatpay-apiv3</groupId>
-                <artifactId>wechatpay-apache-httpclient</artifactId>
-                <version>${wechat}</version>
-            </dependency>
-
-            <!--
-                        <dependency>
-                            <groupId>com.alibaba.fastjson2</groupId>
-                            <artifactId>fastjson2</artifactId>
-                            <version>${fastjson}</version>
-                        </dependency>-->
-
         </dependencies>
     </dependencyManagement>
 </project>
