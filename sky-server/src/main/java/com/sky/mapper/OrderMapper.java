@@ -1,9 +1,13 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
+import com.sky.entity.OrderCount;
 import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.*;
+
+import java.util.Map;
 
 @Mapper
 public interface OrderMapper {
@@ -19,4 +23,10 @@ public interface OrderMapper {
     Orders selectById(Long id);
 
     Page<OrderVO> selectOrders(Orders orders);
+
+    @MapKey("status")
+    @Select("select status, count(*) count from orders group by status;")
+    Map<Integer, OrderCount> selectOrderStatistics();
+
+    Page<OrderVO> selectOrdersByConditions(OrdersPageQueryDTO ordersPageQueryDTO);
 }

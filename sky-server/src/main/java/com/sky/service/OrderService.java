@@ -5,8 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.CurrentContext;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.AddressBook;
 import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
@@ -20,6 +19,8 @@ import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
+import com.sky.entity.OrderCount;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
@@ -104,20 +105,20 @@ public class OrderService {
         orderMapper.updateOrder(orders);
     }
 
-    public void cancel(Long id) {
-        Orders order = orderMapper.selectById(id);
+    public void cancel(OrdersCancelDTO ordersCancelDTO) {
+        Orders order = orderMapper.selectById(ordersCancelDTO.getId());
         if (order == null) {
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
         if (order.getStatus() > 2) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
-        if (order.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+        if (order.getPayStatus().equals(Orders.PAID)) {
             //需要执行退款操作
             order.setPayStatus(Orders.REFUND);
         }
         order.setStatus(Orders.CANCELLED);
-        order.setCancelReason("用户取消了订单");
+        order.setCancelReason(ordersCancelDTO.getCancelReason());
         order.setCancelTime(LocalDateTime.now());
         orderMapper.updateOrder(order);
     }
@@ -125,6 +126,7 @@ public class OrderService {
     public OrderVO selectOrder(Long id) {
         Orders order = Orders.builder()
                 .id(id).build();
+        //pagehelper没有传参就不进行分页查询，page当list用
         Page<OrderVO> orderVOS = orderMapper.selectOrders(order);
         if (orderVOS != null && orderVOS.size() == 1) {
             OrderVO orderVO = orderVOS.getFirst();
@@ -167,5 +169,95 @@ public class OrderService {
             return cart;
         }).toList();
         shoppingCartMapper.addShoppingCarts(carts);
+    }
+
+    public void confirm(Long id) {
+        Orders orders = orderMapper.selectById(id);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        if (!orders.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        orders.setStatus(Orders.CONFIRMED);
+        orderMapper.updateOrder(orders);
+    }
+
+    public void reject(OrdersRejectionDTO ordersRejectionDTO) {
+        Orders orders = orderMapper.selectById(ordersRejectionDTO.getId());
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        if (!orders.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        if (orders.getPayStatus().equals(Orders.PAID)) {
+            //需要执行退款操作
+            orders.setPayStatus(Orders.REFUND);
+        }
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelTime(LocalDateTime.now());
+        orders.setRejectionReason(ordersRejectionDTO.getRejectionReason());
+        orderMapper.updateOrder(orders);
+    }
+
+    public void delivery(Long id) {
+        Orders orders = orderMapper.selectById(id);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        if (!orders.getStatus().equals(Orders.CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        orderMapper.updateOrder(orders);
+    }
+
+    public void complete(Long id) {
+        Orders orders = orderMapper.selectById(id);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        if (!orders.getStatus().equals(Orders.DELIVERY_IN_PROGRESS)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        orders.setStatus(Orders.COMPLETED);
+        orders.setDeliveryTime(LocalDateTime.now());
+        orderMapper.updateOrder(orders);
+    }
+
+    public OrderStatisticsVO statistics() {
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        Map<Integer, OrderCount> map = orderMapper.selectOrderStatistics();
+        OrderCount confirmed = map.get(Orders.CONFIRMED);
+        if (confirmed != null) {
+            orderStatisticsVO.setConfirmed(confirmed.getCount());
+        }
+        OrderCount toBC = map.get(Orders.TO_BE_CONFIRMED);
+        if (toBC != null) {
+            orderStatisticsVO.setToBeConfirmed(toBC.getCount());
+        }
+        OrderCount deIP = map.get(Orders.DELIVERY_IN_PROGRESS);
+        if (deIP != null) {
+            orderStatisticsVO.setDeliveryInProgress(deIP.getCount());
+        }
+        return orderStatisticsVO;
+    }
+
+    public PageResult<OrderVO> selectOrdersByConditions(OrdersPageQueryDTO ordersPageQueryDTO) {
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+        Page<OrderVO> page = orderMapper.selectOrdersByConditions(ordersPageQueryDTO);
+        List<OrderVO> result = page.getResult();
+        List<Long> idList = result.stream().map(Orders::getId).toList();
+        List<OrderDetail> details = orderDetailMapper.selectOrderDetails(idList);
+        Map<Long, List<OrderDetail>> map = details.stream()
+                .collect(Collectors.groupingBy(OrderDetail::getOrderId));
+        for (OrderVO orderVO : result) {
+            List<OrderDetail> detailsGroup = map.get(orderVO.getId());
+            StringBuffer buffer = new StringBuffer();
+            detailsGroup.forEach(od -> buffer.append(od.getName()).append("*").append(od.getNumber()).append(";"));
+            orderVO.setOrderDishes(buffer.toString());
+        }
+        return new PageResult<>(page.getTotal(), result);
     }
 }
