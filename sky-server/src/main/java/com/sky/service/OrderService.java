@@ -1,6 +1,7 @@
 package com.sky.service;
 
 import cn.hutool.core.util.IdUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -23,15 +24,15 @@ import com.sky.entity.OrderCount;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +46,13 @@ public class OrderService {
     private AddressBookMapper addressBookMapper;
     @Autowired
     private ShoppingCartMapper shoppingCartMapper;
+    @Autowired
+    private WebSocketServer webSocketServer;
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    public static final Integer ORDER_REMINDER = 1;//来单提醒;
+    public static final Integer USER_REMINDER = 2;//用户催单;
 
     @Transactional
     public OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) {
@@ -93,7 +101,7 @@ public class OrderService {
                 .build();
     }
 
-    public void pay(OrdersPaymentDTO ordersPaymentDTO) {
+    public void pay(OrdersPaymentDTO ordersPaymentDTO) throws IOException {
         //需要完成支付操作
         Orders orders = Orders.builder()
                 .number(ordersPaymentDTO.getOrderNumber())
@@ -103,6 +111,14 @@ public class OrderService {
                 .payStatus(Orders.PAID)
                 .build();
         orderMapper.updateOrder(orders);
+
+        Integer id = orderMapper.selectByNumber(ordersPaymentDTO.getOrderNumber());
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", ORDER_REMINDER);
+        map.put("orderId", id);
+        map.put("content", "订单号：" + orders.getNumber());
+        String json = objectMapper.writeValueAsString(map);
+        webSocketServer.sendToAllClient(json);
     }
 
     public void cancel(OrdersCancelDTO ordersCancelDTO) {
@@ -259,5 +275,15 @@ public class OrderService {
             orderVO.setOrderDishes(buffer.toString());
         }
         return new PageResult<>(page.getTotal(), result);
+    }
+
+    public void reminder(Long id) throws IOException {
+        Orders orders = orderMapper.selectById(id);
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", USER_REMINDER);
+        map.put("orderId", id);
+        map.put("content", "订单号：" + orders.getNumber());
+        String json = objectMapper.writeValueAsString(map);
+        webSocketServer.sendToAllClient(json);
     }
 }

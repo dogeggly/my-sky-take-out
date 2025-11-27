@@ -7,6 +7,8 @@ import com.sky.entity.OrderCount;
 import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Mapper
@@ -29,4 +31,12 @@ public interface OrderMapper {
     Map<Integer, OrderCount> selectOrderStatistics();
 
     Page<OrderVO> selectOrdersByConditions(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    @Select("select id from orders where status = #{pendingPayment} and order_time < #{orderTime}")
+    List<Integer> selectByOrderTime(Integer pendingPayment, LocalDateTime orderTime);
+
+    void updateOrders(List<Integer> list, Integer status, String cancelReason, LocalDateTime cancelTime);
+
+    @Select("select id from orders where number = #{number}")
+    Integer selectByNumber(String number);
 }

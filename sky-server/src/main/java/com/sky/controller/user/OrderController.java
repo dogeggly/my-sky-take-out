@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Slf4j
 @RestController("userOrderController")
 @RequestMapping("/user/order")
@@ -29,7 +31,7 @@ public class OrderController {
     }
 
     @PutMapping("/payment")
-    public Result<OrderPaymentVO> pay(@RequestBody OrdersPaymentDTO ordersPaymentDTO) {
+    public Result<OrderPaymentVO> pay(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws IOException {
         log.info("用户端支付订单: {}", ordersPaymentDTO);
         orderService.pay(ordersPaymentDTO);
         return Result.error("支付功能未开发");
@@ -63,6 +65,13 @@ public class OrderController {
     public Result repetition(@PathVariable Long id) {
         log.info("再来一单：{}", id);
         orderService.repetition(id);
+        return Result.success();
+    }
+
+    @GetMapping("/reminder/{id}")
+    public Result reminder(@PathVariable Long id) throws IOException {
+        log.info("用户催单：{}", id);
+        orderService.reminder(id);
         return Result.success();
     }
 

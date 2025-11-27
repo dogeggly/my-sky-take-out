@@ -6,7 +6,6 @@
         update orders
         <set>
             <if test="status != null">status = #{status},</if>
-            <if test="number != null and number != ''">number = #{number},</if>
             <if test="checkoutTime != null">checkout_time = #{checkoutTime},</if>
             <if test="payMethod != null">pay_method = #{payMethod},</if>
             <if test="payStatus != null">pay_status = #{payStatus},</if>
@@ -19,6 +18,24 @@
             <if test="number != null and number != ''">number = #{number}</if>
             /*这条where条件其实是多余的*/
             <if test="id != null">and id = #{id}</if>
+        </where>
+    </update>
+    <update id="updateOrders">
+        update orders
+        set
+        status = #{status},
+        cancel_reason = #{cancelReason},
+        cancel_time = #{cancelTime}
+        <where>
+            <if test="list != null and list.size() > 0">
+                id in
+                <foreach item="id" collection="list" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="list == null or list.size() == 0">
+                1 = 2
+            </if>
         </where>
     </update>
     <select id="selectOrders" resultType="com.sky.vo.OrderVO">

@@ -56,5 +56,9 @@ day13:
 day14:
     完成管理订单相关接口
 
+day15:
+    学习springtask和websocket，熟悉cron
+    完成定时清理待支付订单功能和提醒接单、催单功能
+
 待处理：
     redis,websocket,poi
