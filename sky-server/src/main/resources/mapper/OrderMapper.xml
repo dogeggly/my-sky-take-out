@@ -59,6 +59,20 @@
         </where>
         order by order_time desc
     </select>
+    <select id="selectTurnover" resultType="SelectDateResult">
+        select case
+        <foreach collection="list" item="group">
+            when order_time &gt;= #{group.beginDate}
+            and order_time &lt; #{group.endDate} then #{group.beginDate}
+        </foreach>
+        end date,
+        sum(amount) amount from orders where status = 6 group by case
+        <foreach collection="list" item="group">
+            when order_time &gt;= #{group.beginDate}
+            and order_time &lt; #{group.endDate} then #{group.beginDate}
+        </foreach>
+        end
+    </select>
 
     <resultMap id="OrderVOMap" type="com.sky.vo.OrderVO">
         <id property="id" column="id"/>

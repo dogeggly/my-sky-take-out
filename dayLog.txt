@@ -60,5 +60,8 @@ day15:
     学习springtask和websocket，熟悉cron
     完成定时清理待支付订单功能和提醒接单、催单功能
 
+day16:
+    完成营业额统计接口，对mybatis封装和sql编写有新的认识
+
 待处理：
     redis,websocket,poi

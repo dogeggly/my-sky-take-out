@@ -4,6 +4,8 @@ import com.github.pagehelper.Page;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import com.sky.entity.OrderCount;
+import com.sky.entity.SelectDate;
+import com.sky.entity.SelectDateResult;
 import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.*;
 
@@ -39,4 +41,7 @@ public interface OrderMapper {
 
     @Select("select id from orders where number = #{number}")
     Integer selectByNumber(String number);
+
+    @MapKey("date")
+    Map<String, SelectDateResult> selectTurnover(List<SelectDate> list);
 }
