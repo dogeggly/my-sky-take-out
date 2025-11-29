@@ -63,5 +63,8 @@ day15:
 day16:
     完成营业额统计接口，对mybatis封装和sql编写有新的认识
 
+day17:
+    完成数据统计相关接口
+
 待处理：
     redis,websocket,poi

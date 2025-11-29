@@ -9,6 +9,7 @@ import com.sky.entity.SelectDateResult;
 import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -43,5 +44,11 @@ public interface OrderMapper {
     Integer selectByNumber(String number);
 
     @MapKey("date")
-    Map<String, SelectDateResult> selectTurnover(List<SelectDate> list);
+    Map<LocalDate, SelectDateResult> selectTurnover(List<SelectDate> list);
+
+    @MapKey("date")
+    Map<LocalDate, SelectDateResult> selectOrderCount(List<SelectDate> list);
+
+    @MapKey("date")
+    Map<LocalDate, SelectDateResult> selectOrderValid(List<SelectDate> list);
 }

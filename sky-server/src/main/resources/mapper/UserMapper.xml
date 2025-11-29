@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.UserMapper">
+    <select id="selectUserOneDate" resultType="SelectDateResult">
+        select case
+        when create_time &lt; #{begin} then '1970-01-01'
+        <foreach collection="list" item="group">
+            when create_time &gt;= #{group.beginDate}
+            and create_time &lt; #{group.endDate} then #{group.beginDate}
+        </foreach>
+        end date,
+        count(*) amount from user group by case
+        when create_time &lt; #{begin} then '1970-01-01'
+        <foreach collection="list" item="group">
+            when create_time &gt;= #{group.beginDate}
+            and create_time &lt; #{group.endDate} then #{group.beginDate}
+        </foreach>
+        end
+    </select>
+</mapper>
