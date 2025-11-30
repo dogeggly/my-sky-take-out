@@ -23,4 +23,6 @@ public interface UserMapper {
     @MapKey("date")
     Map<LocalDate, SelectDateResult> selectUserOneDate(List<SelectDate> list, LocalDate begin);
 
+    @Select("select count(*) from user where create_time >= #{begin} and create_time < #{end}")
+    Integer selectToday(LocalDate begin, LocalDate end);
 }

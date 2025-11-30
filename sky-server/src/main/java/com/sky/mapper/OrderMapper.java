@@ -3,9 +3,10 @@ package com.sky.mapper;
 import com.github.pagehelper.Page;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
-import com.sky.entity.OrderCount;
+import com.sky.entity.StatusCount;
 import com.sky.entity.SelectDate;
 import com.sky.entity.SelectDateResult;
+import com.sky.vo.BusinessDataVO;
 import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.*;
 
@@ -31,7 +32,7 @@ public interface OrderMapper {
 
     @MapKey("status")
     @Select("select status, count(*) count from orders group by status;")
-    Map<Integer, OrderCount> selectOrderStatistics();
+    Map<Integer, StatusCount> selectOrderStatistics();
 
     Page<OrderVO> selectOrdersByConditions(OrdersPageQueryDTO ordersPageQueryDTO);
 
@@ -51,4 +52,15 @@ public interface OrderMapper {
 
     @MapKey("date")
     Map<LocalDate, SelectDateResult> selectOrderValid(List<SelectDate> list);
+
+    @Select("select count(*) validOrderCount, sum(amount) turnover from orders " +
+            "where order_time >= #{begin} and order_time < #{end} and status = 5")
+    BusinessDataVO selectToday(LocalDate begin, LocalDate end);
+
+    @Select("select count(*) from orders " +
+            "where order_time >= #{begin} and order_time < #{end}")
+    Integer selectAllOrderToday(LocalDate begin, LocalDate end);
+
+    @Select("select count(*) from orders")
+    Integer selectAllOrder();
 }

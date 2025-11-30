@@ -4,15 +4,15 @@ import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
+import com.sky.entity.StatusCount;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishItemVO;
+import com.sky.vo.DishOverViewVO;
 import com.sky.vo.DishVO;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DishMapper {
@@ -43,4 +43,8 @@ public interface DishMapper {
             "left join setmeal_dish sd on d.id = sd.dish_id " +
             "where sd.setmeal_id = #{setmealId}")
     List<DishItemVO> selectDishBySetmealId(Long setmealId);
+
+    @MapKey("status")
+    @Select("select status, count(*) count from dish group by status")
+    Map<Integer, StatusCount> selectGroupByStatus();
 }

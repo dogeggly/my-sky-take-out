@@ -4,14 +4,14 @@ import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
+import com.sky.entity.StatusCount;
 import com.sky.enumeration.OperationType;
+import com.sky.vo.SetmealOverViewVO;
 import com.sky.vo.SetmealVO;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface SetmealMapper {
@@ -36,4 +36,7 @@ public interface SetmealMapper {
     @Select("select id from setmeal where category_id = #{categoryId}")
     List<Setmeal> selectSetmealsByCategoryId(Long categoryId);
 
+    @MapKey("status")
+    @Select("select status, count(*) count from setmeal group by status")
+    Map<Integer, StatusCount> selectGroupByStatus();
 }

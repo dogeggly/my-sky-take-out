@@ -20,7 +20,7 @@ import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
-import com.sky.entity.OrderCount;
+import com.sky.entity.StatusCount;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
@@ -102,9 +102,10 @@ public class OrderService {
     }
 
     public void pay(OrdersPaymentDTO ordersPaymentDTO) throws IOException {
+        String number = ordersPaymentDTO.getOrderNumber();
         //需要完成支付操作
         Orders orders = Orders.builder()
-                .number(ordersPaymentDTO.getOrderNumber())
+                .number(number)
                 .status(Orders.TO_BE_CONFIRMED)
                 .checkoutTime(LocalDateTime.now())
                 .payMethod(ordersPaymentDTO.getPayMethod())
@@ -112,11 +113,11 @@ public class OrderService {
                 .build();
         orderMapper.updateOrder(orders);
 
-        Integer id = orderMapper.selectByNumber(ordersPaymentDTO.getOrderNumber());
+        Integer id = orderMapper.selectByNumber(number);
         Map<String, Object> map = new HashMap<>();
         map.put("type", ORDER_REMINDER);
         map.put("orderId", id);
-        map.put("content", "订单号：" + orders.getNumber());
+        map.put("content", "订单号：" + number);
         String json = objectMapper.writeValueAsString(map);
         webSocketServer.sendToAllClient(json);
     }
@@ -244,16 +245,16 @@ public class OrderService {
 
     public OrderStatisticsVO statistics() {
         OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
-        Map<Integer, OrderCount> map = orderMapper.selectOrderStatistics();
-        OrderCount confirmed = map.get(Orders.CONFIRMED);
+        Map<Integer, StatusCount> map = orderMapper.selectOrderStatistics();
+        StatusCount confirmed = map.get(Orders.CONFIRMED);
         if (confirmed != null) {
             orderStatisticsVO.setConfirmed(confirmed.getCount());
         }
-        OrderCount toBC = map.get(Orders.TO_BE_CONFIRMED);
+        StatusCount toBC = map.get(Orders.TO_BE_CONFIRMED);
         if (toBC != null) {
             orderStatisticsVO.setToBeConfirmed(toBC.getCount());
         }
-        OrderCount deIP = map.get(Orders.DELIVERY_IN_PROGRESS);
+        StatusCount deIP = map.get(Orders.DELIVERY_IN_PROGRESS);
         if (deIP != null) {
             orderStatisticsVO.setDeliveryInProgress(deIP.getCount());
         }
